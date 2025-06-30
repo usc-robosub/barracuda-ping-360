@@ -1,0 +1,12 @@
+services:
+  ping360_sonar:
+    build: .
+    container_name: ping360_sonar
+    environment:
+      - RMW_IMPLEMENTATION=rmw_fastrtps_cpp
+      - ROS_DOMAIN_ID=0
+      - ROS_MASTER_URI=http://localhost:11311
+      - ROS_IP=127.0.0.2 # Use localhost for host network
+    network_mode: host
+    devices:
+      - "/dev/ttyUSB0:/dev/ttyUSB0"   # Map your sonar device if needed

@@ -1,0 +1,4 @@
+[submodule "catkin_ws/src/ping360_sonar"]
+	path = catkin_ws/src/ping360_sonar
+	url = git@github.com:CentraleNantesRobotics/ping360_sonar.git
+	branch = master
