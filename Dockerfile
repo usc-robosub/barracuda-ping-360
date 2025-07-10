@@ -12,11 +12,11 @@ RUN apt-get update && apt-get install -y \
     && pip install bluerobotics-ping \
     && rm -rf /var/lib/apt/lists/*
 
-COPY . /opt/barracuda-sonar
+COPY . /opt/barracuda-ping-360
 
-WORKDIR /opt/barracuda-sonar/catkin_ws
+WORKDIR /opt/barracuda-ping-360/catkin_ws
 
 # Set working directory
 WORKDIR /opt
 
-CMD ["/bin/bash", "/opt/barracuda-sonar/entrypoint.sh"]
+CMD ["/bin/bash", "/opt/barracuda-ping-360/entrypoint.sh"]
