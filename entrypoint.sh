@@ -11,7 +11,7 @@ catkin clean
 catkin build
 source devel/setup.bash
 
-roslaunch ping360_sonar example.launch
+roslaunch barracuda_ping_360 launch_ping360.launch
 
 # Keep container running if roslaunch fails or exits
 # while true; do sleep 1000; done
