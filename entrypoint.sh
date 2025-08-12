@@ -7,7 +7,6 @@ echo "source /opt/barracuda-ping-360/catkin_ws/devel/setup.bash" >> ~/.bashrc
 
 # Build & Source catkin_ws
 cd /opt/barracuda-ping-360/catkin_ws
-catkin clean
 catkin build
 source devel/setup.bash
 
