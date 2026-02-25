@@ -5,8 +5,7 @@ services:
     environment:
       - RMW_IMPLEMENTATION=rmw_fastrtps_cpp
       - ROS_DOMAIN_ID=0
-      - ROS_MASTER_URI=http://localhost:11311
-      - ROS_IP=127.0.0.2 # Use localhost for host network
-    network_mode: host
+      - ROS_DISTRO=humble
     devices:
-      - "/dev/ttyUSB0:/dev/ttyUSB0"   # Map your sonar device if needed
+      - /dev/ttyUSB0:/dev/ttyUSB0
+    privileged: true

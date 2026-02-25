@@ -1,13 +1,14 @@
-#!/usr/bin/bash
-source /opt/ros/melodic/setup.bash
+#!/bin/bash
+source /opt/ros/humble/setup.bash
 
 # Add ROS and workspace setup to bashrc
-echo "source /opt/ros/melodic/setup.bash" >> ~/.bashrc
-echo "source /opt/barracuda-ping-360/catkin_ws/devel/setup.bash" >> ~/.bashrc
+echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
+echo "source /opt/barracuda-ping-360/catkin_ws/install/setup.bash" >> ~/.bashrc
 
-# Build & Source catkin_ws
+# Build & Source ROS2 workspace
 cd /opt/barracuda-ping-360/catkin_ws
-catkin build
-source devel/setup.bash
+colcon build --symlink-install
+source install/setup.bash
 
-roslaunch barracuda_ping_360 launch_ping360.launch --wait
+# Launch the Ping360 node
+ros2 launch barracuda_ping_360 ping360.launch.py
