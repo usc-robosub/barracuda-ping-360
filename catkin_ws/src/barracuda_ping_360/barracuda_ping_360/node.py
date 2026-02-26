@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
-"""ROS2 Node wrapper for Ping360 Sonar using the ping360_sonar submodule."""
+"""ROS2 Node wrapper for Ping360 Sonar using bluerobotics-ping library."""
 
-import sys
-import os
 from math import cos, pi, sin
 
 import numpy as np
@@ -12,12 +10,8 @@ from cv_bridge import CvBridge, CvBridgeError
 from sensor_msgs.msg import Image, LaserScan
 from std_msgs.msg import Header
 
-# Add submodule sensor module directly to path (avoid __init__.py circular imports)
-sensor_module_path = os.path.join(os.path.dirname(__file__), '..', '..', 'ping360_sonar', 'src', 'ping360_sonar')
-if sensor_module_path not in sys.path:
-    sys.path.insert(0, sensor_module_path)
-
-from sensor import Ping360
+# Import from bluerobotics-ping library
+from brping import Ping360
 
 
 class Ping360Node(Node):
