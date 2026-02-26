@@ -8,12 +8,18 @@ RUN apt-get update && apt-get install -y \
     python3-pip \
     ros-humble-cv-bridge \
     ros-humble-image-transport \
+    libboost-dev \
+    libboost-program-options-dev \
+    libboost-system-dev \
+    libboost-thread-dev \
+    libboost-atomic-dev \
     && pip install bluerobotics-ping \
     && rm -rf /var/lib/apt/lists/*
 
 COPY . /opt/barracuda-ping-360
+# Use HTTPS for submodules so Docker build can clone without SSH
 
-WORKDIR /opt/barracuda-ping-360
+WORKDIR /opt
 
-# Run the ROS2 node
-ENTRYPOINT ["bash", "-c", "source /opt/ros/humble/setup.bash && python3 /opt/barracuda-ping-360/catkin_ws/src/barracuda_ping_360/barracuda_ping_360/node.py"]
+# Run the entrypoint script
+CMD ["/bin/bash", "/opt/barracuda-ping-360/entrypoint.sh"]

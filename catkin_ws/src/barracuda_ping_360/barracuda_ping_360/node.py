@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """ROS2 Node wrapper for Ping360 Sonar using bluerobotics-ping library."""
 
+import os
 from math import cos, pi, sin
 
 import numpy as np
@@ -23,6 +24,9 @@ class Ping360Node(Node):
         # Declare parameters
         self.declare_parameter('device', '/dev/ttyUSB0')
         self.declare_parameter('baudrate', 115200)
+        self.declare_parameter('connection_type', 'serial')
+        self.declare_parameter('udp_address', '0.0.0.0')
+        self.declare_parameter('udp_port', 12345)
         self.declare_parameter('debug', False)
         self.declare_parameter('range_max', 2)
         self.declare_parameter('angle_step', 1)
@@ -43,6 +47,9 @@ class Ping360Node(Node):
         # Get parameters
         device = self.get_parameter('device').value
         baudrate = self.get_parameter('baudrate').value
+        self.connection_type = self.get_parameter('connection_type').value
+        self.udp_address = self.get_parameter('udp_address').value
+        self.udp_port = self.get_parameter('udp_port').value
         self.debug = self.get_parameter('debug').value
         self.range_max = self.get_parameter('range_max').value
         self.step = self.get_parameter('angle_step').value
@@ -89,13 +96,44 @@ class Ping360Node(Node):
             )
             raise ValueError("Invalid step configuration")
 
+        # Basic device visibility checks before init
+        if self.connection_type == 'serial':
+            if not os.path.exists(device):
+                self.get_logger().error(f"Device path not found: {device}")
+            else:
+                readable = os.access(device, os.R_OK)
+                writable = os.access(device, os.W_OK)
+                self.get_logger().info(
+                    "Device path OK: %s (readable=%s, writable=%s, euid=%s, egid=%s)"
+                    % (device, readable, writable, os.geteuid(), os.getegid())
+                )
+
         # Initialize sensor
+        self.sensor = None
         try:
-            self.sensor = Ping360(device, baudrate)
+            self.sensor = Ping360()
+            if self.connection_type == 'udp':
+                connected = self.sensor.connect_udp(self.udp_address, int(self.udp_port))
+            else:
+                connected = self.sensor.connect_serial(device, int(baudrate))
+            self.get_logger().info(f"Sensor connected: {connected} (type={type(connected).__name__})")
+            # Some brping versions return None on success; only treat explicit False as failure.
+            if connected is False:
+                self.get_logger().error("Sensor connection failed")
+                self.sensor = None
+                return
+
             init_result = self.sensor.initialize()
             self.get_logger().info(f"Sensor initialized: {init_result}")
+            if not init_result:
+                self.get_logger().error("Sensor initialize returned false")
+                self.sensor = None
+            else:
+                self._log_device_info()
         except Exception as e:
-            self.get_logger().error(f"Failed to initialize sensor: {e}")
+            self.get_logger().error(
+                "Failed to initialize sensor (%s): %r" % (type(e).__name__, e)
+            )
             if not self.fallback_emulated:
                 raise
 
@@ -122,6 +160,23 @@ class Ping360Node(Node):
         self.create_timer(0.1, self.main_loop)
 
         self.get_logger().info("Ping360 Node initialized successfully")
+
+    def _log_device_info(self):
+        """Best-effort device info probe for debug."""
+        for method_name in (
+            "read_device_information",
+            "readDeviceInformation",
+            "request_device_information",
+            "get_device_information",
+        ):
+            if hasattr(self.sensor, method_name):
+                try:
+                    info = getattr(self.sensor, method_name)()
+                    self.get_logger().info(f"Device info ({method_name}): {info}")
+                except Exception as e:
+                    self.get_logger().warn(f"Device info failed ({method_name}): {e}")
+                return
+        self.get_logger().warn("No device info method found on Ping360 instance")
 
     def main_loop(self):
         """Main sensor reading loop"""
@@ -157,6 +212,8 @@ class Ping360Node(Node):
     def get_sonar_data(self, angle):
         """Get sonar data for a specific angle"""
         try:
+            if self.sensor is None:
+                raise RuntimeError("Sensor not initialized")
             # Ensure angle is in valid range (0-400)
             angle = max(0, min(400, int(angle)))
             self.sensor.transmitAngle(angle)
