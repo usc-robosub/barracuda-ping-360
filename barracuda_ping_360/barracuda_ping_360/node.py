@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-"""ROS2 Node wrapper for Ping360 Sonar using bluerobotics-ping library."""
-
 import os
 from math import cos, pi, sin
 
