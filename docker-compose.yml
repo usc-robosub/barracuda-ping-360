@@ -1,10 +1,10 @@
 services:
-  ping360_sonar:
+  barracuda-ping-360:
     build: .
-    container_name: ping360_sonar
+    container_name: barracuda-ping-360
     environment:
       - RMW_IMPLEMENTATION=rmw_fastrtps_cpp
-      - ROS_DOMAIN_ID=0
+      # - ROS_DOMAIN_ID=0
       - ROS_DISTRO=humble
     devices:
       - /dev/ttyUSB0:/dev/ttyUSB0
