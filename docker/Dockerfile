@@ -1,25 +1,23 @@
-FROM ros:humble-ros-base
+FROM ros:humble-ros-base-jammy
 
-ENV DEBIAN_FRONTEND=noninteractive
-ENV ROS_DISTRO=humble
+WORKDIR /ros2_ws
+COPY barracuda_ping_360 /ros2_ws/src/barracuda_ping_360
+COPY ping360_sonar /ros2_ws/src/ping360_sonar
 
-# Install system dependencies 
-RUN apt-get update && apt-get install -y \
-    python3-pip \
-    ros-humble-cv-bridge \
-    ros-humble-image-transport \
-    libboost-dev \
-    libboost-program-options-dev \
-    libboost-system-dev \
-    libboost-thread-dev \
-    libboost-atomic-dev \
-    && pip install bluerobotics-ping \
-    && rm -rf /var/lib/apt/lists/*
+COPY docker/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
-COPY . /opt/barracuda-ping-360
-# Use HTTPS for submodules so Docker build can clone without SSH
+RUN rosdep update && \
+    apt-get update && \
+    apt-get install -y python3-pip && \
+    rosdep install --from-paths src --ignore-src -y
 
-WORKDIR /opt
+RUN /bin/bash -c "source /opt/ros/humble/setup.bash && colcon build --symlink-install"
 
-# Run the entrypoint script
-CMD ["/bin/bash", "/opt/barracuda-ping-360/entrypoint.sh"]
+RUN echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc && \
+    echo "source /ros2_ws/install/setup.bash" >> ~/.bashrc \
+    && sed -i '1iforce_color_prompt=yes' ~/.bashrc
+
+ENTRYPOINT ["/entrypoint.sh"]
+
+CMD ["bash"]
