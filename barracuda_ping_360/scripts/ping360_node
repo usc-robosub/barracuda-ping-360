@@ -1,8 +1,0 @@
-#!/usr/bin/env python3
-"""Wrapper so ROS2 finds the entry point when using ament_cmake_python."""
-
-from barracuda_ping_360.node import main
-import sys
-
-if __name__ == '__main__':
-    sys.exit(main() or 0)
