@@ -36,9 +36,9 @@ and set `<env name="emulated_sonar" value="true" />`.
 
 ## Topics
 With the default launch, topics are remapped and appear under:
-- `/barracuda/ping360_node/sonar/images` (sensor_msgs/Image)
-- `/barracuda/ping360_node/sonar/data` (custom SonarEcho msg from upstream)
-- `/barracuda/ping360_node/sonar/scan` (sensor_msgs/LaserScan)
+- `sonar/images` (sensor_msgs/Image)
+- `sonar/data` (custom SonarEcho msg from upstream)
+- `sonar/scan` (sensor_msgs/LaserScan)
 
 
 ## Configuration
